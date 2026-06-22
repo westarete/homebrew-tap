@@ -3,11 +3,26 @@
 This is [West Arete](https://westarete.com/)'s Homebrew tap — a
 collection of tools we build and distribute via Homebrew.
 
+## What's in this tap
+
+### [catalog](https://github.com/westarete/catalog)
+
+Once you have 20 or more files in a repository, agents do a pretty poor
+job of deciding which files to load into context. They'll randomly load
+ones files they don't need, and they won't load the ones that they do
+need.
+
+`catalog` is a command-line tool that profiles the documents in your
+repo provides agents with a catalog so they can load precisely what they
+need. This means better answers, faster responses, and more context
+window left for the actual work.
+
 ## Usage
 
 ```sh
 brew tap westarete/tap
-brew install westarete/tap/catalog
+brew trust westarete/tap
+brew install catalog
 ```
 
 Or install a tool directly without tapping first:
