@@ -1,0 +1,7 @@
+# markdownlint-cli2 tool-specific options.
+# Rule configuration lives in .markdownlint.yaml.
+# https://github.com/DavidAnson/markdownlint-cli2#configuration
+
+# Mirror Prettier, which respects .gitignore by default, so both tools
+# lint the same set of files.
+gitignore: true
