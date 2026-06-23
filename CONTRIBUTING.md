@@ -190,6 +190,13 @@ This tap has one workflow: `.github/workflows/tests.yml`, which runs
 checks that all cask files are valid Ruby and conform to Homebrew's cask
 conventions.
 
+### Supported platforms
+
+CI runs on Apple Silicon (`macos-26`) and Linux (`ubuntu-latest`). Intel
+Mac (`macos-15-intel`) is not in the matrix — Intel x86_64 is being
+phased out by Homebrew and we don't use Intel Macs. Add it back if you
+need to verify Intel compatibility.
+
 ### What's deliberately absent
 
 `brew tap-new` also generates a `publish.yml` workflow for building and
