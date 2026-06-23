@@ -7,14 +7,16 @@ on:
   pull_request:
 
 jobs:
-  # Runs Homebrew's official tap CI tooling (brew test-bot) on macOS and Linux.
-  # The matrix runs each OS independently: macOS runs natively on the runner,
-  # Linux runs inside the official Homebrew Docker container.
+  # Runs brew test-bot --only-tap-syntax on macOS and Linux to validate that
+  # cask files are valid Ruby and conform to Homebrew's cask conventions.
+  # macOS runs natively on the runner; Linux runs inside the official Homebrew
+  # Docker container, which has Homebrew pre-installed.
   #
-  # We only run --only-tap-syntax, which validates that cask files are valid
-  # Ruby and conform to Homebrew's cask conventions. The other test-bot phases
-  # (--only-cleanup-before, --only-setup) are for Homebrew's own infrastructure
-  # and cause spurious failures in third-party tap CI.
+  # We skip setup-homebrew (Homebrew's official CI action) because it runs
+  # brew update unconditionally, which fails under Homebrew 6's trust model
+  # when the runner has pre-installed untrusted taps (aws/tap, azure/bicep).
+  # Homebrew is already present on both runner environments, so we just check
+  # out the repo and run test-bot directly.
   #
   # Intel Mac (macos-15-intel) is intentionally absent — we only support Apple
   # Silicon. Add it back if Intel compatibility is ever needed.
@@ -27,37 +29,14 @@ jobs:
             container: ghcr.io/homebrew/brew:main
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
-    env:
-      # Prevent brew update from running during setup. The runner image ships
-      # with pre-installed taps (aws/tap, azure/bicep) that are not trusted
-      # under Homebrew 6's trust model. When brew update tries to evaluate
-      # them, it cancels the operation. We don't need an up-to-date Homebrew
-      # to check tap syntax, so skip the update entirely.
-      HOMEBREW_NO_AUTO_UPDATE: 1
     permissions:
       actions: read
       checks: read
       contents: read
       pull-requests: read
     steps:
-      # Suppress git's "defaulting to master" hint when it initializes the tap repo.
-      - name: Configure git default branch
-        run: git config --global init.defaultBranch main
-
-      # Sets up Homebrew and installs the Ruby gems that test-bot depends on.
-      - name: Set up Homebrew
-        id: set-up-homebrew
-        uses: Homebrew/actions/setup-homebrew@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Caches the RubyGems installed by setup-homebrew to speed up subsequent runs.
-      - name: Cache Homebrew Bundler RubyGems
-        uses: actions/cache@v5
-        with:
-          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
-          key: ${{ matrix.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
-          restore-keys: ${{ matrix.os }}-rubygems-
+      # Check out the tap into the location Homebrew expects.
+      - uses: actions/checkout@v7
 
       # brew style (called by --only-tap-syntax) runs actionlint on any workflow
       # files it finds. actionlint is not pre-installed on the runner, so we
