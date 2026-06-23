@@ -25,7 +25,7 @@ cask "catalog" do
   end
 
   name "catalog"
-  desc "Generates and maintains CATALOG.md — a behavior file that tells an AI agent when to pull each document into context."
+  desc "Generates and maintains CATALOG.md for AI agent context loading"
   homepage "https://github.com/westarete/catalog"
 
   livecheck do
@@ -35,5 +35,4 @@ cask "catalog" do
   binary "catalog"
 
   # No zap stanza required
-
 end
