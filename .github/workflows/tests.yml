@@ -7,10 +7,21 @@ on:
   pull_request:
 
 jobs:
+  # Runs Homebrew's official tap CI tooling (brew test-bot) on macOS and Linux.
+  # The matrix runs each OS independently: macOS runs natively on the runner,
+  # Linux runs inside the official Homebrew Docker container.
+  #
+  # We only run --only-tap-syntax, which validates that cask files are valid
+  # Ruby and conform to Homebrew's cask conventions. The other test-bot phases
+  # (--only-cleanup-before, --only-setup) are for Homebrew's own infrastructure
+  # and cause spurious failures in third-party tap CI.
+  #
+  # Intel Mac (macos-15-intel) is intentionally absent — we only support Apple
+  # Silicon. Add it back if Intel compatibility is ever needed.
   test-bot:
     strategy:
       matrix:
-        os: [ macos-26 ]
+        os: [macos-26]
         include:
           - os: ubuntu-latest
             container: ghcr.io/homebrew/brew:main
@@ -22,12 +33,14 @@ jobs:
       contents: read
       pull-requests: read
     steps:
+      # Sets up Homebrew and installs the Ruby gems that test-bot depends on.
       - name: Set up Homebrew
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Caches the RubyGems installed by setup-homebrew to speed up subsequent runs.
       - name: Cache Homebrew Bundler RubyGems
         uses: actions/cache@v5
         with:
@@ -35,8 +48,10 @@ jobs:
           key: ${{ matrix.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
           restore-keys: ${{ matrix.os }}-rubygems-
 
+      # Checks that all cask files are valid Ruby and follow Homebrew's cask style rules.
       - run: brew test-bot --only-tap-syntax
 
+  # Checks that all Markdown files are formatted with Prettier and pass markdownlint.
   markdown:
     runs-on: ubuntu-latest
     steps:
