@@ -27,6 +27,13 @@ jobs:
             container: ghcr.io/homebrew/brew:main
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
+    env:
+      # Prevent brew update from running during setup. The runner image ships
+      # with pre-installed taps (aws/tap, azure/bicep) that are not trusted
+      # under Homebrew 6's trust model. When brew update tries to evaluate
+      # them, it cancels the operation. We don't need an up-to-date Homebrew
+      # to check tap syntax, so skip the update entirely.
+      HOMEBREW_NO_AUTO_UPDATE: 1
     permissions:
       actions: read
       checks: read
