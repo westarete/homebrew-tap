@@ -55,6 +55,12 @@ jobs:
           key: ${{ matrix.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
           restore-keys: ${{ matrix.os }}-rubygems-
 
+      # brew style (called by --only-tap-syntax) runs actionlint on any workflow
+      # files it finds. actionlint is not pre-installed on the runner, so we
+      # install it first. Without it, brew style cancels the operation entirely.
+      - name: Install actionlint
+        run: brew install actionlint
+
       # Checks that all cask files are valid Ruby and follow Homebrew's cask style rules.
       - run: brew test-bot --only-tap-syntax
 
