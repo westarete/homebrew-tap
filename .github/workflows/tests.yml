@@ -15,8 +15,14 @@ jobs:
   # We skip setup-homebrew (Homebrew's official CI action) because it runs
   # brew update unconditionally, which fails under Homebrew 6's trust model
   # when the runner has pre-installed untrusted taps (aws/tap, azure/bicep).
-  # Homebrew is already present on both runner environments, so we just check
-  # out the repo and run test-bot directly.
+  #
+  # There is no actions/checkout step. brew test-bot clones the tap directly
+  # from GitHub at the commit being tested — it ignores any pre-checked-out
+  # copy in the workspace. This is by design: test-bot is built to run in
+  # Homebrew's own CI where it owns the environment. You can see it happen in
+  # the logs: "Tapping westarete/tap / Cloning into ...". This also means
+  # actions/checkout is not needed on Linux, where the Homebrew container
+  # lacks the runner filesystem permissions the action requires anyway.
   #
   # Intel Mac (macos-15-intel) is intentionally absent — we only support Apple
   # Silicon. Add it back if Intel compatibility is ever needed.
@@ -35,9 +41,6 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-      # Check out the tap into the location Homebrew expects.
-      - uses: actions/checkout@v7
-
       # brew style (called by --only-tap-syntax) runs actionlint on any workflow
       # files it finds. actionlint is not pre-installed on the runner, so we
       # install it first. Without it, brew style cancels the operation entirely.
