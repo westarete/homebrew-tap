@@ -7,10 +7,9 @@ on:
   pull_request:
 
 jobs:
-  # Runs brew test-bot --only-tap-syntax on macOS and Linux to validate that
-  # cask files are valid Ruby and conform to Homebrew's cask conventions.
-  # macOS runs natively on the runner; Linux runs inside the official Homebrew
-  # Docker container, which has Homebrew pre-installed.
+  # Runs brew test-bot --only-tap-syntax on macOS to validate that cask files
+  # are valid Ruby and conform to Homebrew's cask conventions (desc length,
+  # no trailing period, no extra blank lines, etc.).
   #
   # We skip setup-homebrew (Homebrew's official CI action) because it runs
   # brew update unconditionally, which fails under Homebrew 6's trust model
@@ -20,21 +19,18 @@ jobs:
   # from GitHub at the commit being tested — it ignores any pre-checked-out
   # copy in the workspace. This is by design: test-bot is built to run in
   # Homebrew's own CI where it owns the environment. You can see it happen in
-  # the logs: "Tapping westarete/tap / Cloning into ...". This also means
-  # actions/checkout is not needed on Linux, where the Homebrew container
-  # lacks the runner filesystem permissions the action requires anyway.
+  # the logs: "Tapping westarete/tap / Cloning into ...".
+  #
+  # Linux is intentionally absent. --only-tap-syntax checks Ruby syntax and
+  # style rules, which are platform-independent. The macOS job covers this.
+  # The Homebrew Linux container also has filesystem permission conflicts with
+  # the GitHub Actions runner that make test-bot fail. If you ever need to
+  # verify the Linux binary actually installs, that requires a different test.
   #
   # Intel Mac (macos-15-intel) is intentionally absent — we only support Apple
   # Silicon. Add it back if Intel compatibility is ever needed.
   test-bot:
-    strategy:
-      matrix:
-        os: [macos-26]
-        include:
-          - os: ubuntu-latest
-            container: ghcr.io/homebrew/brew:main
-    runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
+    runs-on: macos-26
     permissions:
       actions: read
       checks: read
