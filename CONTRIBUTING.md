@@ -100,9 +100,9 @@ homebrew_casks:
     binaries:
       - catalog
     homepage: https://github.com/westarete/catalog
+    # brew style requires: under 80 chars, no trailing period.
     description:
-      Generates and maintains CATALOG.md — a behavior file that tells an
-      AI agent when to pull each document into context.
+      Generates and maintains CATALOG.md for AI agent context loading
     repository:
       owner: westarete
       name: homebrew-tap
@@ -183,19 +183,40 @@ wouldn't mean anything to an outside reader.
 There is no manual step in this tap's repository beyond reviewing the
 first cask commit when it arrives.
 
+## What gets tested where
+
+Testing is split between this tap and each tool's own repository.
+
+**In this tap** (`cask-syntax` CI job): checks that cask files are valid
+Ruby and pass Homebrew's style rules — desc under 80 characters, no
+trailing period, no extra blank lines, well-formed URLs. This runs on
+every push. It cannot verify that the binary downloads, installs, or
+runs correctly.
+
+**In each tool's repo**: builds the binary, runs unit and integration
+tests, and verifies that the GoReleaser config will produce a valid
+cask. The most common mistake is a `description` field that's too long
+or ends with a period — Homebrew enforces these rules but GoReleaser
+doesn't know about them. A pre-release check in the tool's repo catches
+this before it reaches tap CI.
+
 ## GitHub Actions workflows
 
-This tap has one workflow: `.github/workflows/tests.yml`, which runs
-`brew test-bot --only-tap-syntax` on every push and pull request. It
-checks that all cask files are valid Ruby and conform to Homebrew's cask
-conventions.
+This tap has two workflows in `.github/workflows/tests.yml`, both
+running on every push and pull request:
+
+- `cask-syntax` — runs `brew test-bot --only-tap-syntax` on macOS to
+  validate cask files
+- `markdown` — runs Prettier and markdownlint across all `.md` files
 
 ### Supported platforms
 
-CI runs on Apple Silicon (`macos-26`) and Linux (`ubuntu-latest`). Intel
-Mac (`macos-15-intel`) is not in the matrix — Intel x86_64 is being
-phased out by Homebrew and we don't use Intel Macs. Add it back if you
-need to verify Intel compatibility.
+`cask-syntax` runs on Apple Silicon (`macos-26`) only. Linux is absent —
+`--only-tap-syntax` checks Ruby syntax and style rules, which are
+platform-independent, so macOS coverage is sufficient. The Homebrew
+Linux container also has filesystem permission conflicts with the GitHub
+Actions runner. Intel Mac (`macos-15-intel`) is absent — Intel x86_64 is
+being phased out by Homebrew and we don't use Intel Macs.
 
 ### What's deliberately absent
 

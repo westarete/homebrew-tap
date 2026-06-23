@@ -29,7 +29,7 @@ jobs:
   #
   # Intel Mac (macos-15-intel) is intentionally absent — we only support Apple
   # Silicon. Add it back if Intel compatibility is ever needed.
-  test-bot:
+  cask-syntax:
     runs-on: macos-26
     permissions:
       actions: read
