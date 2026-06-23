@@ -5,7 +5,7 @@ collection of tools we build and distribute via Homebrew.
 
 ## What's in this tap
 
-### [catalog](https://github.com/westarete/catalog)
+### [catalog](https://github.com/westarete/catalog): context loading optimization
 
 Once you have 20 or more files in a repository, agents do a pretty poor
 job of deciding which files to load into context. They'll randomly load
