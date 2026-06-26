@@ -55,7 +55,7 @@ cask "catalog" do
   end
 
   name "catalog"
-  desc "Generates and maintains CATALOG.md for AI agent context loading"
+  desc "Generates and maintains .catalog.md for AI agent context loading"
   homepage "https://github.com/westarete/catalog"
 
   livecheck do
@@ -102,7 +102,7 @@ homebrew_casks:
     homepage: https://github.com/westarete/catalog
     # brew style requires: under 80 chars, no trailing period.
     description:
-      Generates and maintains CATALOG.md for AI agent context loading
+      Generates and maintains .catalog.md for AI agent context loading
     repository:
       owner: westarete
       name: homebrew-tap
