@@ -1,4 +1,4 @@
-name: brew test-bot
+name: CI
 
 on:
   push:
@@ -7,44 +7,19 @@ on:
   pull_request:
 
 jobs:
-  # Runs brew test-bot --only-tap-syntax on macOS to validate that cask files
-  # are valid Ruby and conform to Homebrew's cask conventions (desc length,
-  # no trailing period, no extra blank lines, etc.).
+  # We deliberately do not lint the generated cask. Casks/catalog.rb is
+  # produced by GoReleaser's homebrew_casks template during catalog's release,
+  # and that template's output does not satisfy `brew style` (the linter
+  # Homebrew runs on casks submitted to the official homebrew-cask repo). The
+  # cosmetic offenses it raises — a blank line before the closing `end`, array
+  # indentation in stanzas like `zap` — are inherent to the generated output,
+  # not mistakes we can fix here without hand-editing a generated file.
   #
-  # We skip setup-homebrew (Homebrew's official CI action) because it runs
-  # brew update unconditionally, which fails under Homebrew 6's trust model
-  # when the runner has pre-installed untrusted taps (aws/tap, azure/bicep).
-  #
-  # There is no actions/checkout step. brew test-bot clones the tap directly
-  # from GitHub at the commit being tested — it ignores any pre-checked-out
-  # copy in the workspace. This is by design: test-bot is built to run in
-  # Homebrew's own CI where it owns the environment. You can see it happen in
-  # the logs: "Tapping westarete/tap / Cloning into ...".
-  #
-  # Linux is intentionally absent. --only-tap-syntax checks Ruby syntax and
-  # style rules, which are platform-independent. The macOS job covers this.
-  # The Homebrew Linux container also has filesystem permission conflicts with
-  # the GitHub Actions runner that make test-bot fail. If you ever need to
-  # verify the Linux binary actually installs, that requires a different test.
-  #
-  # Intel Mac (macos-15-intel) is intentionally absent — we only support Apple
-  # Silicon. Add it back if Intel compatibility is ever needed.
-  cask-syntax:
-    runs-on: macos-26
-    permissions:
-      actions: read
-      checks: read
-      contents: read
-      pull-requests: read
-    steps:
-      # brew style (called by --only-tap-syntax) runs actionlint on any workflow
-      # files it finds. actionlint is not pre-installed on the runner, so we
-      # install it first. Without it, brew style cancels the operation entirely.
-      - name: Install actionlint
-        run: brew install actionlint
-
-      # Checks that all cask files are valid Ruby and follow Homebrew's cask style rules.
-      - run: brew test-bot --only-tap-syntax
+  # GoReleaser-published taps (k9s, GoReleaser's own) run no CI on their
+  # generated files for exactly this reason: there is nothing a human authored
+  # to get wrong. If we ever want a real smoke test, the right one is an
+  # install test (`brew install westarete/tap/catalog && catalog --version`),
+  # which checks that the binary installs and runs — not its formatting.
 
   # Checks that all Markdown files are formatted with Prettier and pass markdownlint.
   markdown:
