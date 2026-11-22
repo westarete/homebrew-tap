@@ -7,25 +7,25 @@ cask "catalog" do
     }
   end
 
-  version "0.6.0"
+  version "0.6.1"
 
   on_macos do
     on_arm do
-      sha256 "c521fe623ba4ee070ed9777614672b3a4b5eddb60f4469c78ed140040e675630"
+      sha256 "d5b8ae35b691c720ff46d7ccc85b3be1c7f784ed781643e6913d0e6f0d2a8ce6"
       url "https://github.com/westarete/catalog/releases/download/v#{version}/catalog_darwin_arm64.tar.gz"
     end
     on_intel do
-      sha256 "27b9bf845224988121678ef8f5d46691923d26e175e1dc050998d1922878ec73"
+      sha256 "248316fc3092e3e1c1c7833ad4ceab6d2e0d4d83a805fd41dd948f21bb2727e5"
       url "https://github.com/westarete/catalog/releases/download/v#{version}/catalog_darwin_amd64.tar.gz"
     end
   end
   on_linux do
     on_arm do
-      sha256 "eaeff3dd15a8dbc36c890148a518b4166ed36ae2488a44e26564f3ef702b0ea5"
+      sha256 "5aaad8e849bdf133f93bd759fa00d0449b12a8bae3529f39a0db7e15332e5622"
       url "https://github.com/westarete/catalog/releases/download/v#{version}/catalog_linux_arm64.tar.gz"
     end
     on_intel do
-      sha256 "ff78881aa329eca39850e094205d0089df8b4e56931a518eff7e06a84ea02a5b"
+      sha256 "6997f7673be3a729cc16eb42edef7ad23eba5e7479a106c8eea9a19cac060d36"
       url "https://github.com/westarete/catalog/releases/download/v#{version}/catalog_linux_amd64.tar.gz"
     end
   end
